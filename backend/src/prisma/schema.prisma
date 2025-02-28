@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["deno"]
+  output          = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  phone          String
+  email          String           @unique
+  positionId     Int
+  pansionId      Int
+  provinceId     Int
+  cityId         Int
+  PosInPansion   PosInPansion[]
+  city           City             @relation(fields: [cityId], references: [id])
+  pansion        Pansion          @relation(fields: [pansionId], references: [id])
+  position       Position         @relation(fields: [positionId], references: [id])
+  province       Province         @relation(fields: [provinceId], references: [id])
+  ponsionOptions ponsionOptions[]
+}
+
+model Position {
+  id           Int            @id @default(autoincrement())
+  name         String
+  level        Role           @default(USER)
+  PosInPansion PosInPansion[]
+  users        User[]
+}
+
+model Pansion {
+  id             Int              @id @default(autoincrement())
+  name           String
+  phone          String
+  address        String           @default("nothing")
+  codeParvane    String           @unique
+  Capacity       Int              @default(0)
+  advancePayment Float?
+  chargeMony     Float
+  active         Boolean          @default(true)
+  typeOfContract Contract         @default(ANNUALLY)
+  imageUrl       String?
+  description    String           @default("No description provided")
+  commentId      Int?             @default(1)
+  provinceId     Int
+  cityId         Int
+  typeOfPansion  PansionType      @default(EMPLOYEE)
+  numberOfRoom   Int              @default(0)
+  numberOfBed    Int              @default(0)
+  city           City             @relation(fields: [cityId], references: [id])
+  comment        Comment?         @relation(fields: [commentId], references: [id])
+  province       Province         @relation(fields: [provinceId], references: [id])
+  positions      PosInPansion[]
+  rooms          Room[]
+  users          User[]
+  ponsionOptions ponsionOptions[]
+}
+
+model Room {
+  id           Int      @id @default(autoincrement())
+  numberRoom   Int
+  numberOfBeds Int
+  rent         Float
+  pansionId    Int
+  categoryId   Int
+  category     Category @relation(fields: [categoryId], references: [id])
+  pansion      Pansion  @relation(fields: [pansionId], references: [id])
+}
+
+model Province {
+  id       Int       @id @default(autoincrement())
+  name     String
+  enName   String
+  cities   City[]
+  pansions Pansion[]
+  users    User[]
+}
+
+model City {
+  id         Int       @id @default(autoincrement())
+  name       String
+  enName     String
+  provinceId Int
+  province   Province  @relation(fields: [provinceId], references: [id])
+  pansions   Pansion[]
+  users      User[]
+}
+
+model PosInPansion {
+  positionId Int
+  pansionId  Int
+  assignedAt DateTime @default(now())
+  assignedBy Int
+  assigned   User     @relation(fields: [assignedBy], references: [id])
+  pansion    Pansion  @relation(fields: [pansionId], references: [id])
+  position   Position @relation(fields: [positionId], references: [id])
+
+  @@id([positionId, pansionId])
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  pansions    Pansion[]
+}
+
+model Options {
+  id             Int              @id @default(autoincrement())
+  name           String
+  ponsionOptions ponsionOptions[]
+}
+
+model ponsionOptions {
+  pansionId  Int
+  optionId   Int
+  assignedAt DateTime @default(now())
+  assignedBy Int
+  assigned   User     @relation(fields: [assignedBy], references: [id])
+  options    Options  @relation(fields: [optionId], references: [id])
+  pansion    Pansion  @relation(fields: [pansionId], references: [id])
+
+  @@id([pansionId, optionId])
+}
+
+model Category {
+  id            Int    @id @default(autoincrement())
+  name          String
+  minAdvancePay Float
+  maxAdvancePay Float
+  minRent       Float
+  maxRent       Float
+  rooms         Room[]
+}
+
+enum Contract {
+  ANNUALLY
+  FOUR_MONTHS
+}
+
+enum PansionType {
+  EMPLOYEE
+  STUDENT
+}
+
+enum Role {
+  GHOST
+  USER
+  ADMIN
+}

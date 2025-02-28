@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "prisma-client": "./generated/client/index.js"
+  }
+}
