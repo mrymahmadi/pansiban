@@ -1,0 +1,1 @@
+For the beginning of the project, we need a GHOST user. It is better to create it when the project runs for the first time. For this work, we have a file in the path: firstRun/beginProject.ts. Use this for the first run of the project.
