@@ -1,3 +1,3 @@
 # pansiban
 
-# for see project files - config - folders, please go to Master branch
+>for see project files - config - folders, please go to Master branch
